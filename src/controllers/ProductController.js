@@ -10,6 +10,18 @@ const ProductController = {
     },
 
     async list(request, response) {
+        const products = await ProductModel.findAll();
+        response.json(products);
+    }
+
+
+    
+
+
+
+
+
+    /*async list(request, response) {
         let token = request.headers.authorization ? request.headers.authorization.split(' ') : ''
             token = token ? token[1] : ''
         
@@ -17,19 +29,32 @@ const ProductController = {
             response.json({message: "Token inválido!", sucess: false})
         } else{
 
-            let authSecret = 'Sfk802$#djhsa@Sf93s2&(3'
-            const decoded = jwt.verify(token, authSecret);
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                console.log(decoded);
+                const products = await ProductModel.findAll({
+                    where: { user_id: decoded.id }
+                });
+                response.json(products);
+            } catch(error) {
+                console.log(Object.getOwnPropertyNames(error));
+                console.log(error.message);
+                if(error.name === "SequelizeDatabaseError") {
+                    return response.json({
+                        message: "Ocorreu um erro no servidor"
+                    });
+                }
+                return response.json({
+                    message: error.message
+                })
+            }
 
-            console.log(decoded);
-
-            const products = await ProductModel.findAll({
-                where: { user_id: decoded.id }
-            })
             
             
-            response.json(products);
+            
+            
         }
-    }
+    }*/
 }
 
 module.exports = ProductController;
