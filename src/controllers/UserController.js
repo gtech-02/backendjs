@@ -3,6 +3,8 @@ const ProductModel = require('../models/ProductModel');
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 
+UserModel.hasMany(ProductModel, { foreignKey: 'user_id' });
+
 const UserController = {
     async create(request, response) {
         
@@ -50,17 +52,32 @@ const UserController = {
     },
 
     async list(request, response) {
-        const users = await UserModel.findAll();
 
-        /*const products = await ProductModel.findAll({
-            where: {
-                user_id: users.id
+        const users = await UserModel.findAll({
+            include: ProductModel
+        });
+
+        return response.json(users);
+
+        /*
+        let result = users.map(async (user) => {
+            
+            let products = await ProductModel.findAll({
+                where: {
+                    user_id: user.id
+                }
+            }) 
+
+            return {
+                ...user.dataValues,
+                products: products,
             }
         });
 
-        users.setDataValue('products', products);*/
+        result = await Promise.all(result);
 
-        return response.json(users);
+        return response.json(result);
+        */
     },
 
     async update(request, response) {
