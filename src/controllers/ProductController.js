@@ -1,13 +1,29 @@
 const ProductModel = require('../models/ProductModel');
+const ProductImagesModel = require('../models/ProductImagesModel');
 const UserModel = require('../models/UserModel');
 const jwt = require('jsonwebtoken');
 
 ProductModel.belongsTo(UserModel, {foreignKey: 'user_id'});
 
 const ProductController = {
-    create(request, response) {
-        ProductModel.create(request.body);
-        response.json({
+    async create(request, response) {
+        let product = await ProductModel.create(request.body);
+
+        if(request.body?.images) {
+            // Inserindo ID do produto no objeto com os dados da imagem
+            let images = request.body.images.map(image => {
+                return {
+                    product_id: product.id,
+                    path: image.content,
+                    ...image
+                }
+            })
+            
+            // Salvando uma lista de imagens de uma so vez
+            await ProductImagesModel.bulkCreate(images)
+        }
+
+        return response.json({
             message: "Produto criado com sucesso"
         });
     },
