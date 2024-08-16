@@ -2,6 +2,7 @@ const UserModel = require('../models/UserModel');
 const ProductModel = require('../models/ProductModel');
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
 
 UserModel.hasMany(ProductModel, { foreignKey: 'user_id' });
 
@@ -52,9 +53,12 @@ const UserController = {
     },
 
     async list(request, response) {
-
+        const id = 5
         const users = await UserModel.findAll({
-            include: ProductModel
+            where: { 
+                    // createdAt: {[Op.between]: ['2024-08-06 00:00:00', '2024-08-06 23:59:59']}
+                    createdAt: {[Op.startsWith]: '2024-08-06%'}
+                   },
         });
 
         return response.json(users);
